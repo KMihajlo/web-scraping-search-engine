@@ -1,0 +1,26 @@
+# Maven build outputs
+backend/target/
+
+# Maven wrapper cache (optional, keep if you want reproducible builds)
+.mvn/
+
+# IDE files
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Node (for future frontend module)
+node_modules/
+
+# Misc
+.cache/
+
+# Maven wrapper JAR should not be committed
+.mvn/wrapper/maven-wrapper.jar
