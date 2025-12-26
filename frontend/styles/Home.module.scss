@@ -17,32 +17,97 @@
   gap: 12px;
   align-items: center;
   margin-bottom: 14px;
+  flex-wrap: wrap;
 }
 
 .toggle {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(34, 211, 238, 0.2));
+  position: relative;
+  overflow: hidden; /* for sheen */
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 25%, transparent), color-mix(in oklab, var(--accent-2) 25%, transparent));
   color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   padding: 10px 14px;
   border-radius: 10px;
   cursor: pointer;
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
-.toggle:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.15);
+/* Remove glossy sheen and use playful ripple */
+.toggle::before { display: none; }
+
+/* Ripple ring animation */
+@keyframes rippleRing {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.28; }
+  60% { transform: translate(-50%, -50%) scale(9); opacity: 0.16; }
+  100% { transform: translate(-50%, -50%) scale(12); opacity: 0.0; }
 }
 
-.toggle.active {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(34, 211, 238, 0.35));
+/* Center-out hover color animation for header toggles (playful, non-glossy) */
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 300ms ease-out, opacity 300ms ease-out, background-color 200ms ease;
+  opacity: 0.0;
+  pointer-events: none;
 }
+:global(:root[data-theme='light']) .toggle::after { background-color: #3e5641; }
+:global(:root[data-theme='dark']) .toggle::after { background-color: color-mix(in oklab, var(--accent-2) 35%, transparent); }
+
+/* Hover: expand wash + ripple ring + playful bounce */
+.toggle:hover::after { transform: translate(-50%, -50%) scale(18); opacity: 0.22; }
+.toggle:hover { transform: translateY(-2px) scale(1.04); }
+.toggle:active { transform: translateY(0) scale(0.99); }
+
+/* Add ripple ring via pseudo-element on hover */
+.toggle:hover {
+  /* create a ring using box-shadow spread for playful effect */
+  box-shadow: 0 0 0 0 rgba(0,0,0,0.0);
+}
+.toggle:hover::before {
+  /* repurpose ::before as a ring emitter */
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: 0.22;
+  transform: translate(-50%, -50%) scale(1);
+  animation: rippleRing 520ms ease-out forwards;
+}
+
+/* Selected state: solid color and subtle inward glow (non-glossy) */
+:global(:root[data-theme='light']) .toggle.active {
+  background: #f96e46 !important;
+  color: #f8f8f8 !important;
+  border-color: #f96e46 !important;
+}
+:global(:root[data-theme='light']) .toggle.active::after {
+  background-color: #f96e46 !important;
+  opacity: 0.12; /* softer wash when selected */
+}
+/* Optional bottom indicator to reinforce selection */
+:global(:root[data-theme='light']) .toggle.active::before {
+  content: '';
+  position: absolute;
+  left: 10px; right: 10px; bottom: 6px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(248, 248, 248, 0.65);
+}
+
+/* Dark mode: subtle distinct selected (slightly brighter accent wash) */
+:global(:root[data-theme='dark']) .toggle.active::after { opacity: 0.25; }
 
 .search {
   flex: 1;
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   background: var(--card);
   color: var(--text);
   outline: none;
@@ -73,7 +138,7 @@
 
 .bookCard {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 14px;
   overflow: hidden;
   animation: pop 250ms ease-out;
@@ -101,7 +166,7 @@
   position: absolute;
   bottom: 8px;
   right: 8px;
-  background: rgba(17, 24, 39, 0.8);
+  background: color-mix(in oklab, var(--bg) 85%, transparent);
   padding: 4px 6px;
   border-radius: 8px;
 }
@@ -127,7 +192,7 @@
 }
 
 .filled {
-  color: #fbbf24;
+  color: var(--accent);
 }
 
 .bookInfo {
@@ -153,7 +218,7 @@
 
 .quoteCard {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
   cursor: pointer;
@@ -184,16 +249,16 @@
 }
 
 .tag {
-  background: rgba(34, 211, 238, 0.15);
+  background: color-mix(in oklab, var(--accent-2) 20%, transparent);
   color: var(--text);
-  border: 1px solid rgba(34, 211, 238, 0.35);
+  border: 1px solid color-mix(in oklab, var(--accent-2) 50%, transparent);
   padding: 6px 8px;
   border-radius: 999px;
   cursor: pointer;
 }
 
 .tag:hover {
-  background: rgba(34, 211, 238, 0.25);
+  background: color-mix(in oklab, var(--accent-2) 35%, transparent);
 }
 
 .pagination {
@@ -207,7 +272,7 @@
 
 .pageBtn {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   color: var(--text);
   padding: 8px 12px;
   border-radius: 10px;
@@ -233,7 +298,7 @@
 
 .pageNumber {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   color: var(--text);
   padding: 6px 10px;
   border-radius: 10px;
@@ -246,22 +311,43 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.pageActive {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(34, 211, 238, 0.35));
-  border-color: rgba(255, 255, 255, 0.16);
-  font-weight: 700;
+/* Light theme: pagination colors match header toggles */
+:global(:root[data-theme='light']) .pageNumber { background: var(--card); border-color: var(--border); color: #1a1a1a; }
+:global(:root[data-theme='light']) .pageNumber:hover { background-color: #2a2a2a14; /* subtle hover tint over light bg */ }
+:global(:root[data-theme='light']) .pageActive { background: #f96e46 !important; color: #f8f8f8 !important; border-color: #f96e46 !important; box-shadow: 0 2px 8px rgba(249, 110, 70, 0.25); }
+
+/* Dark theme: pagination colors match header toggles */
+:global(:root[data-theme='dark']) .pageNumber { background: #cfd2b2; border-color: #cfd2b2; color: #1a1a1a; }
+:global(:root[data-theme='dark']) .pageNumber:hover { background-color: #b9bea1; }
+:global(:root[data-theme='dark']) .pageActive { background: #f96e46 !important; color: #1a1a1a !important; border-color: #f96e46 !important; box-shadow: 0 2px 8px rgba(249, 110, 70, 0.25); }
+
+/* Footer GitHub button: match header toggles (no gradients) */
+:global(:root[data-theme='light']) .footerLink { background: #1a1a1a !important; color: #f8f8f8 !important; border-color: #1a1a1a !important; }
+:global(:root[data-theme='light']) .footerLink:hover { background-color: #2a2a2a !important; box-shadow: 0 8px 20px rgba(26, 26, 26, 0.20); }
+:global(:root[data-theme='dark']) .footerLink { background: #cfd2b2 !important; color: #1a1a1a !important; border-color: #cfd2b2 !important; }
+:global(:root[data-theme='dark']) .footerLink:hover { background-color: #b9bea1 !important; box-shadow: 0 8px 20px rgba(191, 193, 172, 0.22); }
+
+/* Footer GitHub button layout: align icon and text */
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 11px;
+  font-size: 11px;
+}
+.footerLink .gh-btn__icon {
+  display: block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
 }
 
-.ellipsis {
-  color: var(--muted);
-  padding: 0 6px;
-}
-
-// Modal
+/* Modal */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--overlay);
   backdrop-filter: blur(2px);
   display: grid;
   place-items: center;
@@ -269,7 +355,7 @@
 
 .modal {
   background: var(--card);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 36px;
   width: min(1000px, 94vw);
@@ -280,17 +366,17 @@
 
 .close {
   position: absolute;
-  top: 5px;
+  top: 8px;
   right: 8px;
-  background: rgba(17,24,39,0.85); /* subtle dark background so it stands out */
+  background: rgba(17, 24, 39, 0.85); /* subtle dark background so it stands out */
   backdrop-filter: blur(2px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text);
   font-size: 22px;
   cursor: pointer;
   z-index: 2;
   border-radius: 999px;
-  padding: 6px 10px; /* compact pill */
+  padding: 4px 8px; /* compact pill */
   line-height: 1;
 }
 
@@ -524,6 +610,13 @@
   .relatedGrid {
     grid-template-columns: 1fr;
   }
+  .controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .search {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -554,4 +647,299 @@
   .relatedGrid {
     grid-template-columns: 1fr;
   }
+  .controls {
+    align-items: stretch;
+    gap: 10px;
+  }
+  .themeSwitch {
+    justify-content: space-between;
+  }
+  .toggle {
+    width: 100%;
+    text-align: center;
+  }
+  .search {
+    width: 100%;
+  }
 }
+
+// Header Styles
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  transition: transform 360ms ease, opacity 360ms ease;
+}
+
+.headerHidden {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.headerInner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 24px;
+}
+
+.headerTitle {
+  font-size: 22px;
+  font-weight: 800;
+  padding: 20px 24px 25px;
+  color: var(--text);
+}
+
+.themeSwitch {
+  margin-left: 6px;
+}
+
+@media (max-width: 1440px) {
+  .headerInner {
+    max-width: 1100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerInner {
+    padding: 14px 16px;
+  }
+  .headerTitle {
+    padding: 18px 16px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerInner {
+    padding: 16px;
+  }
+  .header {
+    padding: 8px 8px 0;
+  }
+  /* extra padding around header on mobile */
+  .headerTitle {
+    padding: 16px 8px 16px;
+  }
+}
+
+/* When a modal is open, hide the header to avoid overlap */
+:global(html.modal-open) .header {
+  transform: translateY(-100%) !important;
+  opacity: 0 !important;
+}
+
+/* Ensure modal overlay sits above header */
+.modalOverlay {
+  z-index: 1000;
+}
+
+// Footer Styles
+.footer {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 12px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  color: var(--text);
+}
+
+.footerText {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footerLink {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 40%, transparent), color-mix(in oklab, var(--accent-2) 40%, transparent));
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.footerLink:hover {
+  filter: brightness(1.06);
+}
+
+/* Theme Switch Styles */
+.themeSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.themeSwitchLabel {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: color-mix(in oklab, #cfd2b2 20%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.switchKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.themeSwitchInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.themeSwitchInput:checked + .switch .switchKnob {
+  transform: translateX(22px);
+  border-color: color-mix(in oklab, #1a1a1a 60%, transparent);
+}
+
+.themeSwitchInput:checked + .switch {
+  background: color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+/* Light mode specific tweaks (use :global to keep CSS Modules pure) */
+:global(:root[data-theme='light']) .tag {
+  background: #F96E46 !important;
+  border-color: color-mix(in oklab, #F96E46 65%, transparent);
+  color: #fff;
+}
+
+:global(:root[data-theme='light']) .tag:hover {
+  background: color-mix(in oklab, #F96E46 85%, transparent);
+}
+
+:global(:root[data-theme='light']) .relatedCard {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+:global(:root[data-theme='light']) .close {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+:global(:root[data-theme='light']) .bookTopRight {
+  border-color: #1a1a1a !important;
+}
+
+/* Sun/Moon icons remain local scoped on knob (no global selector needed) */
+.switchKnob {
+  /* Default moon icon for dark mode */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23f8f8f8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.themeSwitchInput:checked + .switch .switchKnob {
+  /* Sun icon when light mode is checked */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5'%3E%3C/circle%3E%3Cline x1='12' y1='1' x2='12' y2='3'%3E%3C/line%3E%3Cline x1='12' y1='21' x2='12' y2='23'%3E%3C/line%3E%3Cline x1='4.22' y1='4.22' x2='5.64' y2='5.64'%3E%3C/line%3E%3Cline x1='18.36' y1='18.36' x2='19.78' y2='19.78'%3E%3C/line%3E%3Cline x1='1' y1='12' x2='3' y2='12'%3E%3C/line%3E%3Cline x1='21' y1='12' x2='23' y2='12'%3E%3C/line%3E%3Cline x1='4.22' y1='19.78' x2='5.64' y2='18.36'%3E%3C/line%3E%3Cline x1='18.36' y1='5.64' x2='19.78' y2='4.22'%3E%3C/line%3E%3C/svg%3E");
+}
+
+/* Separate tag classes for books and quotes */
+.bookTag {
+  @extend .tag;
+}
+
+.quoteTag {
+  @extend .tag;
+}
+
+/* Dark mode specific tag colors */
+:global(:root[data-theme='dark']) .bookTag {
+  background: #cfd2b2 !important;
+  color: #1a1a1a !important;
+  border-color: color-mix(in oklab, #cfd2b2 65%, transparent);
+}
+
+:global(:root[data-theme='dark']) .quoteTag {
+  background: #cfd2b2 !important;
+  color: #1a1a1a !important;
+  border-color: color-mix(in oklab, #cfd2b2 65%, transparent);
+}
+
+/* Dark mode: make quote tags match book category colors, and set quote author color */
+:global(:root[data-theme='dark']) .quoteTag {
+  background: #cfd2b2 !important;
+  color: #1a1a1a !important;
+  border-color: color-mix(in oklab, #cfd2b2 65%, transparent);
+}
+
+:global(:root[data-theme='dark']) .quoteAuthor {
+  color: #f96e46 !important;
+}
+
+:global(:root[data-theme='dark']) .modalQuoteAuthor {
+  color: #f96e46 !important;
+}
+
+:global(:root[data-theme='dark']) .close {
+  background: #cfd2b2 !important;
+  color: #1a1a1a !important;
+  border-color: color-mix(in oklab, #cfd2b2 65%, transparent) !important;
+}
+
+/* Light mode: improve rating contrast for unselected stars */
+:global(:root[data-theme='light']) .star {
+  color: #cfd2b2 !important;
+}
+
+:global(:root[data-theme='light']) .filled {
+  color: #3e5641 !important;
+}
+
+/* keep filled stars using accent via existing .filled */
+
+/* Rating star colors: filled vs unfilled */
+.star {
+  color: #cfd2b2;
+}
+
+.filled {
+  color: #3e5641;
+}
+
+/* Dark mode: revert rating colors to previous */
+:global(:root[data-theme='dark']) .star {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+:global(:root[data-theme='dark']) .filled {
+  color: var(--accent) !important;
+}
+
+/* Light mode: use solid palette colors (no gradients), avoid green */
+:global(:root[data-theme='light']) .toggle { background: #1a1a1a !important; color: #f8f8f8 !important; border-color: #1a1a1a !important; }
+:global(:root[data-theme='light']) .toggle:hover { background-color: #2a2a2a !important; }
+/* Ripple wash uses orange accent from palette */
+:global(:root[data-theme='light']) .toggle::after { background-color: #f96e46 !important; }
+/* Selected toggle must be clearly distinct (orange) */
+:global(:root[data-theme='light']) .toggle.active { background: #f96e46 !important; color: #f8f8f8 !important; border-color: #f96e46 !important; }
+
+/* Dark mode: distinguishable header toggle colors (no gradients) */
+:global(:root[data-theme='dark']) .toggle { background: #cfd2b2 !important; color: #1a1a1a !important; border-color: #cfd2b2 !important; }
+:global(:root[data-theme='dark']) .toggle:hover { background-color: #b9bea1 !important; }
+:global(:root[data-theme='dark']) .toggle.active { background: #f96e46 !important; color: #1a1a1a !important; border-color: #f96e46 !important; }
+:global(:root[data-theme='dark']) .toggle.active::after { background-color: #f96e46 !important; opacity: 0.18; }

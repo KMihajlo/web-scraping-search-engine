@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import Head from 'next/head';
 import styles from '../styles/Home.module.scss';
-import React, { useRef } from 'react';
+import React from 'react';
 
 // Types
 export type Book = {
@@ -66,6 +66,9 @@ export default function HomePage() {
   const [showModalQuote, setShowModalQuote] = useState<Quote | null>(null);
   const [showModalBook, setShowModalBook] = useState<Book | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark' | ''>('');
+  const [hideHeader, setHideHeader] = useState(false);
+  const scrollPosRef = useRef<number>(0);
 
   useEffect(() => {
     const handler = () => {
@@ -194,47 +197,148 @@ export default function HomePage() {
     );
   }
 
+  useEffect(() => {
+    // initialize theme from localStorage or system preference
+    const saved = typeof window !== 'undefined' ? (localStorage.getItem('theme') as 'light' | 'dark' | null) : null;
+    let initial: 'light' | 'dark';
+    if (saved) {
+      initial = saved;
+    } else {
+      const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      initial = prefersLight ? 'light' : 'dark';
+    }
+    setTheme(initial);
+    document.documentElement.setAttribute('data-theme', initial);
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  };
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y > scrollPosRef.current && y > 50) {
+        // scrolling down
+        setHideHeader(true);
+      } else {
+        // scrolling up
+        setHideHeader(false);
+      }
+      scrollPosRef.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const isOpen = Boolean(showModalBook || showModalQuote);
+    if (isOpen) {
+      const scrollY = window.scrollY || window.pageYOffset;
+      html.classList.add('modal-open');
+      body.classList.add('modal-open');
+      body.style.position = 'fixed';
+      body.style.top = `-${scrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+    } else {
+      const top = body.style.top;
+      html.classList.remove('modal-open');
+      body.classList.remove('modal-open');
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      if (top) {
+        const y = parseInt(top || '0', 10) * -1;
+        window.scrollTo(0, y);
+      }
+    }
+    return () => {
+      const top = body.style.top;
+      html.classList.remove('modal-open');
+      body.classList.remove('modal-open');
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      if (top) {
+        const y = parseInt(top || '0', 10) * -1;
+        window.scrollTo(0, y);
+      }
+    };
+  }, [showModalBook, showModalQuote]);
+
   return (
     <>
       <Head>
-        <title>Scraping Search</title>
+        <title>Web Scraping Search Engine</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <main className={styles.container}>
-        <h1 className={styles.title}>Scraping Search</h1>
+      {/* Header block with title + controls, hide/show on scroll */}
+      <header className={`${styles.header} ${hideHeader ? styles.headerHidden : ''}`}>
+        <div className={styles.headerInner}>
+          <div className={styles.headerTitle}>Web Scraping Search Engine</div>
+          <div className={styles.controls}>
+            <label className={styles.themeSwitch}>
+              <input
+                type="checkbox"
+                className={styles.themeSwitchInput}
+                checked={theme === 'light'}
+                onChange={toggleTheme}
+                aria-label="Toggle light/dark theme"
+              />
+              <span className={styles.switch}>
+                <span className={styles.switchKnob} />
+              </span>
+              <span className={styles.themeSwitchLabel}>{theme === 'light' ? 'Light' : 'Dark'}</span>
+            </label>
+            <button
+                className={`${styles.toggle} ${mode === 'books' ? styles.active : ''}`}
+                onClick={() => setMode(mode === 'books' ? 'none' : 'books')}
+                aria-pressed={mode === 'books'}
+            >
+              <span className="transition"></span>
+              <span className="gradient"></span>
+              <span className="label">Books</span>
+            </button>
+            <button
+                className={`${styles.toggle} ${mode === 'quotes' ? styles.active : ''}`}
+              onClick={() => setMode(mode === 'quotes' ? 'none' : 'quotes')}
+              aria-pressed={mode === 'quotes'}
+            >
+              <span className="transition"></span>
+              <span className="gradient"></span>
+              <span className="label">Quotes</span>
+            </button>
 
-        <div className={styles.controls}>
-          <button
-            className={`${styles.toggle} ${mode === 'books' ? styles.active : ''}`}
-            onClick={() => setMode(mode === 'books' ? 'none' : 'books')}
-            aria-pressed={mode === 'books'}
-          >
-            Books
-          </button>
-          <button
-            className={`${styles.toggle} ${mode === 'quotes' ? styles.active : ''}`}
-            onClick={() => setMode(mode === 'quotes' ? 'none' : 'quotes')}
-            aria-pressed={mode === 'quotes'}
-          >
-            Quotes
-          </button>
-
-          <input
-            className={styles.search}
-            placeholder={
-              mode === 'books'
-                ? 'Try searching for a book title or category'
-                : mode === 'quotes'
-                  ? 'Try searching a quote, author or a tag'
-                  : 'Select Books or Quotes to start searching'
-            }
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            disabled={mode === 'none'}
-          />
+            <input
+              className={styles.search}
+              placeholder={
+                mode === 'books'
+                  ? 'Try searching for a book title or category'
+                  : mode === 'quotes'
+                    ? 'Try searching a quote, author or a tag'
+                    : 'Select Books or Quotes to start searching'
+              }
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              disabled={mode === 'none'}
+            />
+          </div>
         </div>
+      </header>
 
+      <main className={styles.container}>
         {mode !== 'none' && (
           <div className={styles.resultCount}>
             {totalItems} results
@@ -255,7 +359,6 @@ export default function HomePage() {
               pagedBooks.map((b, idx) => (
                 <div key={`${b.title}-${idx}`} className={styles.bookCard} onClick={() => setShowModalBook(b)}>
                   <div className={styles.bookImageWrap}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={String(b.imageUrl)} alt={b.title} className={styles.bookImage} />
                     <div className={styles.rating}>{renderStars(b.rating, 'sm')}</div>
                   </div>
@@ -264,8 +367,8 @@ export default function HomePage() {
                     <div className={styles.bookMeta}>
                       <span className={styles.bookPrice}>{typeof b.price === 'number' ? `£${b.price}` : b.price}</span>
                       {b.category && (
-                        <button className={styles.tag} onClick={(e) => { e.stopPropagation(); setMode('books'); setQuery(b.category!); }}>
-                          #{b.category}
+                        <button className={`${styles.tag} ${styles.bookTag}`} onClick={(e) => { e.stopPropagation(); setMode('books'); setQuery(b.category!); }}>
+                          {b.category.charAt(0).toUpperCase() + b.category.slice(1)}
                         </button>
                       )}
                     </div>
@@ -287,8 +390,8 @@ export default function HomePage() {
                   <div className={styles.quoteAuthor}>— {qt.author}</div>
                   <div className={styles.tags}>
                     {qt.tags.map(tag => (
-                      <button key={tag} className={styles.tag} onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}>
-                        #{tag}
+                      <button key={tag} className={`${styles.tag} ${styles.quoteTag}`} onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}>
+                        {tag.charAt(0).toUpperCase() + tag.slice(1)}
                       </button>
                     ))}
                   </div>
@@ -335,6 +438,26 @@ export default function HomePage() {
             </button>
           </div>
         )}
+
+        {/* Footer below pagination */}
+        <footer className={styles.footer}>
+          <span className={styles.footerText}>Made by: Mihajlo Kragujevski</span>
+          <a
+            className={styles.footerLink}
+            href="https://github.com/KMihajlo/web-scraping-search-engine"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open GitHub repository"
+          >
+            <svg className="gh-btn__icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                  fill="currentColor"
+                  d="M12 0a12 12 0 00-3.79 23.39c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.72.08-.72 1.2.08 1.83 1.23 1.83 1.23 1.07 1.84 2.8 1.31 3.48 1 .11-.77.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.17 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.3-1.55 3.3-1.23 3.3-1.23.66 1.65.24 2.87.12 3.17.77.84 1.24 1.91 1.24 3.22 0 4.62-2.8 5.64-5.48 5.94.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58A12 12 0 0012 0z"
+              />
+            </svg>
+            GitHub Repo
+          </a>
+        </footer>
       </main>
 
       {showModalQuote && (
@@ -345,7 +468,9 @@ export default function HomePage() {
             <div className={styles.modalQuoteAuthor}>— {showModalQuote.author}</div>
             <div className={styles.modalTags}>
               {showModalQuote.tags.map(tag => (
-                <button key={tag} className={styles.tag} onClick={() => onTagClick(tag)}>#{tag}</button>
+                <button key={tag} className={`${styles.tag} ${styles.quoteTag}`} onClick={() => onTagClick(tag)}>
+                  {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                </button>
               ))}
             </div>
             <div className={styles.relatedHeader}>Related Quotes</div>
@@ -362,10 +487,7 @@ export default function HomePage() {
         <div className={styles.modalOverlay} onClick={() => setShowModalBook(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <button className={styles.close} onClick={() => setShowModalBook(null)}>×</button>
-
-            {/* Top section: image left, details right */}
             <div className={styles.bookTopSection}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={String(showModalBook.imageUrl)} alt={showModalBook.title} className={styles.bookTopImage} />
               <div className={styles.bookTopRight}>
                 <div className={styles.bookTopTitle}>{showModalBook.title}</div>
@@ -379,8 +501,8 @@ export default function HomePage() {
                 </div>
                 <div className={styles.bookTopRating}>{renderStars(showModalBook.rating, 'lg')}</div>
                 {showModalBook.category && (
-                  <button className={styles.tag} onClick={() => { setMode('books'); setQuery(showModalBook.category!); }}>
-                    #{showModalBook.category}
+                  <button className={`${styles.tag} ${styles.bookTag}`} onClick={() => { setMode('books'); setQuery(showModalBook.category!); }}>
+                    {showModalBook.category.charAt(0).toUpperCase() + showModalBook.category.slice(1)}
                   </button>
                 )}
               </div>

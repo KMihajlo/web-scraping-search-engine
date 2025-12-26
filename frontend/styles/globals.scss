@@ -1,13 +1,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+/* Base palette (reference) */
+/* dark base: #1a1a1a; accent forest: #3e5641; accent orange: #f96e46; soft sage: #cfd2b2; near white: #f8f8f8 */
+
+/* Default variables (will be overridden by theme data attributes) */
 :root {
-  --bg: #0f172a;
-  --card: #111827;
-  --muted: #94a3b8;
-  --text: #e5e7eb;
-  --accent: #60a5fa;
-  --accent-2: #22d3ee;
-  --danger: #ef4444;
+  --bg: #1a1a1a;
+  --card: #222222;
+  --text: #f8f8f8;
+  --muted: #cfd2b2;
+  --accent: #f96e46;   /* primary accent */
+  --accent-2: #3e5641; /* secondary accent */
+  --border: rgba(255,255,255,0.08);
+  --overlay: rgba(0,0,0,0.45);
+}
+
+/* Dark theme */
+:root[data-theme='dark'] {
+  --bg: #1a1a1a;
+  --card: #232323;
+  --text: #f8f8f8;
+  --muted: #cfd2b2;
+  --accent: #f96e46;
+  --accent-2: #3e5641;
+  --border: rgba(255,255,255,0.10);
+  --overlay: rgba(0,0,0,0.45);
+}
+
+/* Light theme */
+:root[data-theme='light'] {
+  --bg: #f8f8f8;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --muted: #3e5641; /* use forest as muted text */
+  --accent: #3e5641; /* forest as primary accent in light */
+  --accent-2: #f96e46; /* orange as secondary accent */
+  --border: rgba(0,0,0,0.08);
+  --overlay: rgba(0,0,0,0.30);
+}
+
+/* Respect system preference if no explicit theme set */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #f8f8f8;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #3e5641;
+    --accent: #3e5641;
+    --accent-2: #f96e46;
+    --border: rgba(0,0,0,0.08);
+    --overlay: rgba(0,0,0,0.30);
+  }
 }
 
 * { box-sizing: border-box; }
@@ -17,7 +60,11 @@ html, body {
 }
 button { font-family: inherit; }
 
-// Utility animations
+/* Utility animations */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pop { 0% { transform: scale(0.98); } 60% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
+/* Disable page scroll when a modal is open */
+:global(html.modal-open), :global(body.modal-open) {
+  overflow: hidden;
+}
