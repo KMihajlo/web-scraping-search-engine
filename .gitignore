@@ -1,26 +1,36 @@
-# Maven build outputs
-backend/target/
+# Global ignores for this monorepo
 
-# Maven wrapper cache (optional, keep if you want reproducible builds)
-.mvn/
+# macOS
+.DS_Store
 
-# IDE files
+# IDE
 .idea/
 *.iml
-
-# OS files
-.DS_Store
-Thumbs.db
+.vscode/
 
 # Logs
-logs/
 *.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Node (for future frontend module)
-node_modules/
+# Node/Next.js (frontend)
+frontend/node_modules/
+frontend/.next/
+frontend/.next/cache/
+frontend/.env*
+frontend/.turbo/
+frontend/out/
 
-# Misc
-.cache/
+# Maven/Java (backend)
+backend/target/
+backend/.mvn/
+backend/mvnw*
 
-# Maven wrapper JAR should not be committed
-.mvn/wrapper/maven-wrapper.jar
+# H2 database files (if ever persisted)
+*.h2.db
+
+# Temporary files
+.tmp/
+

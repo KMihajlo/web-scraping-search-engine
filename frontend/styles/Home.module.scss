@@ -1,0 +1,557 @@
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+  animation: fadeIn 300ms ease-out;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  margin: 0 0 16px;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.toggle {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.2), rgba(34, 211, 238, 0.2));
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(34, 211, 238, 0.15);
+}
+
+.toggle.active {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(34, 211, 238, 0.35));
+}
+
+.search {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: box-shadow 120ms ease;
+}
+
+.search:focus {
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.25);
+}
+
+.placeholder {
+  color: var(--muted);
+  padding: 24px 14px;
+}
+
+.resultCount {
+  color: var(--muted);
+  margin: 10px 0 16px;
+  font-size: 14px;
+}
+
+.gridBooks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 6px;
+}
+
+.bookCard {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  animation: pop 250ms ease-out;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  cursor: pointer;
+}
+
+.bookCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(96, 165, 250, 0.12);
+}
+
+.bookImageWrap {
+  position: relative;
+}
+
+.bookImage {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.rating {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(17, 24, 39, 0.8);
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+
+// Stars
+.stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.stars.lg {
+  gap: 4px;
+}
+
+.star {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.stars.lg .star {
+  font-size: 18px;
+}
+
+.filled {
+  color: #fbbf24;
+}
+
+.bookInfo {
+  padding: 12px;
+}
+
+.bookTitle {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.bookPrice {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.gridQuotes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.quoteCard {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  animation: pop 250ms ease-out;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.quoteCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(34, 211, 238, 0.12);
+}
+
+.quoteText {
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.quoteAuthor {
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.tags {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--text);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  padding: 6px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.tag:hover {
+  background: rgba(34, 211, 238, 0.25);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  padding: 18px 0;
+  flex-wrap: wrap;
+}
+
+.pageBtn {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.pageNumbers {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pageNumber {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  min-width: 36px;
+  text-align: center;
+}
+
+.pageNumber:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pageActive {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(34, 211, 238, 0.35));
+  border-color: rgba(255, 255, 255, 0.16);
+  font-weight: 700;
+}
+
+.ellipsis {
+  color: var(--muted);
+  padding: 0 6px;
+}
+
+// Modal
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+}
+
+.modal {
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 36px;
+  width: min(1000px, 94vw);
+  max-height: 86vh;
+  overflow: auto;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  background: rgba(17,24,39,0.85); /* subtle dark background so it stands out */
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 999px;
+  padding: 6px 10px; /* compact pill */
+  line-height: 1;
+}
+
+.modalQuoteText {
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.modalQuoteAuthor {
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+.modalTags {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.relatedHeader {
+  margin-top: 16px;
+  font-weight: 700;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.relatedCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.relatedCard:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Apply fixed height only in quotes modal */
+.quoteModal .relatedCard {
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.quoteModal .quoteText {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+.quoteModal .quoteText.truncated::after {
+  content: '...';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding-left: 12px;
+  background: linear-gradient(90deg, rgba(17, 24, 39, 0) 0%, rgba(17, 24, 39, 0.85) 40%, rgba(17, 24, 39, 0.95) 100%);
+}
+
+// Book Modal Specific Styles
+.bookMeta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bookModalHeader {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bookModalImage {
+  width: 160px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.bookModalTitle {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.bookDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.detailLabel {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.detailValue {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.relatedBookTitle {
+  font-size: 14px;
+}
+
+.bookTopSection {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.bookTopImage {
+  width: 220px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.bookTopRight {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.bookTopPriceAvailability {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.bookDescriptionSection {
+  margin: 14px 0;
+}
+
+// Prevent tag button from stretching full width
+.bookTopRight .tag {
+  width: auto;
+  align-self: flex-start;
+}
+
+// Related Book Card Styles
+.relatedBookCard {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+}
+
+.relatedBookImage {
+  width: 60px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.relatedBookTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .relatedBookCard {
+    grid-template-columns: 48px 1fr;
+  }
+  .relatedBookImage {
+    width: 48px;
+    height: 64px;
+  }
+}
+
+// Responsiveness
+@media (max-width: 1440px) {
+  .container {
+    max-width: 1100px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .gridBooks {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .gridQuotes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .gridBooks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gridQuotes {
+    grid-template-columns: 1fr;
+  }
+  .bookDetailsGrid {
+    grid-template-columns: 1fr;
+  }
+  .bookModalHeader {
+    grid-template-columns: 120px 1fr;
+  }
+  .bookModalImage {
+    width: 120px;
+    height: 180px;
+  }
+  .bookTopSection {
+    grid-template-columns: 160px 1fr;
+  }
+  .bookTopImage {
+    width: 160px;
+    height: 220px;
+  }
+  .relatedGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .gridBooks {
+    grid-template-columns: 1fr;
+  }
+  .pagination {
+    gap: 8px;
+  }
+  .pageNumbers {
+    gap: 6px;
+  }
+  .pageBtn {
+    padding: 6px 10px;
+  }
+  .pageNumber {
+    min-width: 30px;
+    padding: 5px 8px;
+  }
+  .bookTopSection {
+    grid-template-columns: 1fr;
+  }
+  .bookTopImage {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+  }
+  .relatedGrid {
+    grid-template-columns: 1fr;
+  }
+}
