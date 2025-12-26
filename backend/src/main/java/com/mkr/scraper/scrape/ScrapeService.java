@@ -26,6 +26,13 @@ public class ScrapeService {
         this.quoteRepository = quoteRepository;
     }
 
+    private static String truncateWithEllipsis(String s, int max) {
+        if (s == null) return null;
+        if (s.length() <= max) return s;
+        if (max <= 3) return s.substring(0, Math.max(0, max));
+        return s.substring(0, max - 3) + "...";
+    }
+
     @Transactional
     public void scrapeBooks() throws IOException {
         String baseUrl = "https://books.toscrape.com/";
@@ -53,29 +60,94 @@ public class ScrapeService {
                 book.setTitle(title);
                 // Price
                 String priceText = article.selectFirst("div.product_price p.price_color").text();
-                // e.g. "£51.77" -> 51.77
                 String numeric = priceText.replaceAll("[^0-9.]", "");
                 if (!numeric.isEmpty()) {
                     book.setPrice(new BigDecimal(numeric));
                 }
+                // Product URL (details page)
+                String href = article.selectFirst("h3 a").attr("href");
+                String productUrl;
+                if (href.startsWith("catalogue")) {
+                    productUrl = baseUrl + href;
+                } else {
+                    productUrl = baseUrl + "catalogue/" + href;
+                }
+                // Normalize possible ../
+                productUrl = productUrl.replace("../", "");
+                book.setProductUrl(productUrl);
+
+                // Fetch product page for category & details
+                try {
+                    Document pd = Jsoup.connect(productUrl).get();
+                    // Category from breadcrumb: Home > Books > Category
+                    Element breadcrumbCat = pd.selectFirst("ul.breadcrumb li:nth-child(3) a");
+                    if (breadcrumbCat != null) {
+                        book.setCategory(breadcrumbCat.text());
+                    }
+                    // Description (if present)
+                    Element descHeader = pd.selectFirst("#product_description");
+                    if (descHeader != null) {
+                        Element descPara = descHeader.nextElementSibling();
+                        if (descPara != null) {
+                            String desc = descPara.text();
+                            // Truncate to a generous limit to avoid DB issues in stricter envs
+                            book.setDescription(truncateWithEllipsis(desc, 16000));
+                        }
+                    }
+                    // Availability
+                    Element avail = pd.selectFirst("table.table.table-striped tr:contains(Availability) td");
+                    if (avail != null) book.setAvailability(avail.text());
+                    // UPC
+                    Element upcEl = pd.selectFirst("table.table.table-striped tr:contains(UPC) td");
+                    if (upcEl != null) book.setUpc(upcEl.text());
+                    // Product Type
+                    Element typeEl = pd.selectFirst("table.table.table-striped tr:contains(Product Type) td");
+                    if (typeEl != null) book.setProductType(typeEl.text());
+                    // Prices & Tax
+                    Element exclEl = pd.selectFirst("table.table.table-striped tr:contains(Price (excl. tax)) td");
+                    if (exclEl != null) {
+                        String n = exclEl.text().replaceAll("[^0-9.]", "");
+                        if (!n.isEmpty()) book.setPriceExclTax(new BigDecimal(n));
+                    }
+                    Element inclEl = pd.selectFirst("table.table.table-striped tr:contains(Price (incl. tax)) td");
+                    if (inclEl != null) {
+                        String n = inclEl.text().replaceAll("[^0-9.]", "");
+                        if (!n.isEmpty()) book.setPriceInclTax(new BigDecimal(n));
+                    }
+                    Element taxEl = pd.selectFirst("table.table.table-striped tr:contains(Tax) td");
+                    if (taxEl != null) {
+                        String n = taxEl.text().replaceAll("[^0-9.]", "");
+                        if (!n.isEmpty()) book.setTax(new BigDecimal(n));
+                    }
+                    // Number of reviews
+                    Element reviewsEl = pd.selectFirst("table.table.table-striped tr:contains(Number of reviews) td");
+                    if (reviewsEl != null) {
+                        try {
+                            book.setNumberOfReviews(Integer.parseInt(reviewsEl.text().trim()));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                } catch (IOException ignored) {
+                    // continue without details if product page fails
+                }
+
                 books.add(book);
             }
             // Next page
             Element next = doc.selectFirst("li.next a");
             if (next != null) {
-                String href = next.attr("href");
-                if (href.startsWith("catalogue")) {
-                    url = baseUrl + href;
-                } else if (href.startsWith("page")) {
-                    url = baseUrl + "catalogue/" + href;
+                String nhref = next.attr("href");
+                if (nhref.startsWith("catalogue")) {
+                    url = baseUrl + nhref;
+                } else if (nhref.startsWith("page")) {
+                    url = baseUrl + "catalogue/" + nhref;
                 } else {
-                    url = baseUrl + href;
+                    url = baseUrl + nhref;
                 }
+                url = url.replace("../", "");
             } else {
                 url = null;
             }
         }
-        // Simple strategy: clear and insert fresh snapshot
         bookRepository.deleteAllInBatch();
         bookRepository.saveAll(books);
     }
@@ -113,4 +185,3 @@ public class ScrapeService {
         quoteRepository.saveAll(quotes);
     }
 }
-
